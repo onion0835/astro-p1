@@ -1,0 +1,107 @@
+---
+import { getLanguages } from '../data/fetchData';
+
+const { title, description, lang } = Astro.props;
+const languages = await getLanguages();
+
+// Group languages by their base language
+const languageGroups = languages.reduce((groups, language) => {
+  const baseCode = language.code.split('-')[0];
+  if (!groups[baseCode]) {
+    groups[baseCode] = [];
+  }
+  groups[baseCode].push(language);
+  return groups;
+}, {});
+
+const menuItems = [
+  { name: '首页', href: '#' },
+  { name: '视频', href: '#' },
+  { name: '生产力', href: '#' },
+  { name: '文本和写作', href: '#' },
+  { name: '企业', href: '#' },
+  { name: '虚拟数字人', href: '#' },
+  { name: '设计与艺术', href: '#' },
+  { name: '代码与编程技术', href: '#' },
+  { name: '营销', href: '#' },
+  { name: '医疗', href: '#' },
+  { name: '声音', href: '#' },
+  { name: 'AI工具目录', href: '#' },
+  { name: 'AI轮播图', href: '#' },
+  { name: '生活助手', href: '#' },
+  { name: '3D', href: '#' },
+  { name: '教育', href: '#' }
+];
+---
+
+<!DOCTYPE html>
+<html lang={lang} class="bg-[#1C1C1F]">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={Astro.url.href} />
+    {languages.map((l) => (
+      l.code !== lang && (
+        <link
+          rel="alternate"
+          hreflang={l.code}
+          href={`/${l.code}${Astro.url.pathname.substring(lang.length + 1)}`}
+        />
+      )
+    ))}
+  </head>
+  <body class="min-h-screen flex flex-col text-white">
+    <header class="bg-[#1C1C1F] border-b border-gray-800">
+      <div class="max-w-[1400px] mx-auto">
+        <!-- Top Navigation -->
+        <div class="flex justify-between items-center h-14 px-4">
+          <div class="flex items-center space-x-4">
+            <a href="/" class="text-2xl font-bold">T</a>
+            <div class="relative">
+              <input type="search" placeholder="搜索" class="bg-gray-800 rounded-lg px-4 py-1 text-sm w-64" />
+            </div>
+          </div>
+          
+          <div class="flex items-center space-x-6">
+            <a href="#" class="text-sm">AI工具</a>
+            <a href="#" class="text-sm">提交</a>
+            <a href="#" class="text-sm">用户中心</a>
+            <a href="#" class="text-sm">文章</a>
+            <a href="#" class="text-sm">定价</a>
+            <div class="flex items-center space-x-2">
+              <span class="text-sm">CN</span>
+              <button class="bg-gradient-to-r from-blue-500 to-purple-500 px-4 py-1 rounded-lg text-sm">提交 AI</button>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Category Navigation -->
+        <nav class="h-12 flex items-center px-4 overflow-x-auto">
+          <ul class="flex space-x-6 text-sm text-gray-300">
+            {menuItems.map(item => (
+              <li>
+                <a href={item.href} class="hover:text-white">{item.name}</a>
+              </li>
+            ))}
+          </ul>
+        </nav>
+      </div>
+    </header>
+
+    <main class="flex-grow">
+      <div class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+        <div class="px-4 py-6 sm:px-0">
+          <slot />
+        </div>
+      </div>
+    </main>
+
+    <footer class="bg-[#1C1C1F] border-t border-gray-800">
+      <div class="max-w-7xl mx-auto py-8 px-4 text-center text-gray-400 text-sm">
+        <p>&copy; {new Date().getFullYear()} AI Tools Directory. All rights reserved.</p>
+      </div>
+    </footer>
+  </body>
+</html>

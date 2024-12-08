@@ -1,0 +1,71 @@
+---
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import { getLanguages, getAllPostsByLanguage, getPostBySlugAndLanguage } from '../../../data/fetchData';
+
+export async function getStaticPaths() {
+  const languages = await getLanguages();
+  const paths = [];
+
+  for (const lang of languages) {
+    const posts = await getAllPostsByLanguage(lang.code);
+    
+    for (const postSummary of posts) {
+      const post = await getPostBySlugAndLanguage(postSummary.slug, lang.code);
+      paths.push({
+        params: { 
+          lang: lang.code,
+          slug: post.slug
+        },
+        props: { 
+          post,
+          lang: lang.code
+        }
+      });
+    }
+  }
+
+  return paths;
+}
+
+const { post, lang } = Astro.props;
+---
+
+<BaseLayout
+  title={post.title}
+  description={post.content.substring(0, 160)}
+  lang={lang}
+>
+  <div class="max-w-7xl mx-auto">
+    <article class="relative py-16 bg-white overflow-hidden">
+      <div class="relative px-4 sm:px-6 lg:px-8">
+        <div class="text-lg max-w-prose mx-auto">
+          <h1>
+            <span class="block text-base text-center text-indigo-600 font-semibold tracking-wide uppercase">
+              {post.category_name}
+            </span>
+            <span class="mt-2 block text-3xl text-center leading-8 font-extrabold tracking-tight text-gray-900 sm:text-4xl">
+              {post.title}
+            </span>
+          </h1>
+          <div class="mt-6 flex justify-center">
+            <div class="flex items-center">
+              <div class="flex-shrink-0">
+                <time datetime={post.publish_date} class="text-gray-500">
+                  {new Date(post.publish_date).toLocaleDateString()}
+                </time>
+              </div>
+              <div class="ml-4">
+                <a href={`/${lang}/category/${post.category_slug}`} class="text-indigo-600 hover:text-indigo-700">
+                  {post.category_name}
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="mt-6 prose prose-indigo prose-lg text-gray-500 mx-auto">
+          {post.content}
+        </div>
+      </div>
+    </article>
+  </div>
+</BaseLayout>
